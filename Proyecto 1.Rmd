@@ -1,0 +1,110 @@
+---
+title: "Proyecto 1 Minería de Datos"
+author: "Alejandro Manhood y Estivalíz Rosales"
+date: "10/4/2021"
+output: html_document
+---
+## ALumnos: Alejandro Manhood y Estivaliz Rosales
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## En este proyecto se tiene por objetivo encontrar una combinaon ideal para un sandwich y de esta manera que sea añadido a la carta de un restoran. Lo que se hará en nuestro proyecto es centrarnos especificamente en los sandwiches que hayan tenido calificacion 5.
+
+## Esto es porque bajo nuestro punto de vista estos son los que mejor han sido evaluados y por ende, esto debe traducirse a la preferencia por parte de los clientes por estos, lo cual se puede deber a los ingredientes que incluyen. Lo que se hará es tener estos ingredientes para luego limpiar estos ingredientes, sacando conectores y palabras redundantes para finalmente calcular las frecuencias de estos y asi formar el sandwich perfecto.
+```{r}
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(stringr)
+library(qdap)
+library(tm)
+library(utf8)
+setwd("C:/Users/amanh/OneDrive/Documentos/GitHub/Proyecto-1")
+datos <- read.csv("sanguchez.csv",header= TRUE, sep=";")
+```
+## Primero analizamos la data para de esta manera poder tener una idea como es y asi hacer que sea mas facil ver los tipos de datos.
+
+```{r}
+head(datos)
+str(datos)
+```
+
+## Luego se saco un resumen de los datos para poder identificar algun dato que tenga valores Na y de esta manera sacarlos para tener mayor orden. Como tambien el numero de filas y columnas.
+
+```{r}
+summary(datos)
+dim(datos)
+```
+
+## Pre procesamiento de datos, para dejar variables que sean de interes, mediante inspeccion visual de estas misnas. En este caso se sacaran las variables "url", "local", "direccion", "precio" y "texto". Ya que estas no aportan informacion para el analisis que nosotros queremos hacer. Dejando unicamente tanto las notas como los ingredientes que contienen los sandwiches.
+
+```{r}
+sandw <- datos[,! (colnames(datos) %in% c("url","Local","Direccion","texto", "Precio"))]
+datos
+
+```
+
+## Luego se procede a retirar todos los sandwich que tengan nota inferior a 5, para de esta manera quedarnos con los que han recibido la mejor calificacion y asi tener a los mejor valorados. Además se hace un resumen para verificar que no esxistan datos con valores faltantes. Al saber que no existen se prosigue con el trabajo de limpieza de la data.
+
+```{r}
+sandw <- filter(sandw, nota == 5)
+summary(sandw)
+dim(sandw)
+```
+
+## Lo siguiente a realizar es crear una nueva variable para almacenar los ingredientes de los sandwiches con mejores notas, (nos costo poder sacar las notas del original, asi que era mas facil crear una nueva variable con los ingredientes). Esta variable tiene por nombre sanwi y contendrá los ingredientes de las 56 entidades.
+
+## Junto con lo anterior se procede a comenzar con la limpieza de caracteres, puntuacion y conectores que presente nuesta data. Para asi tenerla lo mas limpia posible para el procesamiento de texto. Se revisa cada vez con las lineas sanwi[i] para corroborar como se va limpiando nuestra variable.
+
+```{r}
+sanwi <- sandw$Ingredientes
+sanwi[1]
+sanwi <- tolower(sanwi)
+sanwi <- removePunctuation(sanwi)
+sanwi <- removeNumbers(sanwi)
+sanwi <- rm_stopwords(sanwi, tm::stopwords("spanish"))
+sanwi[1]
+sanwi[4]
+```
+
+## Al ejecutar tenemos individualizados los ingredientes, pero tenemos ahora el problema de que necesitamos tenerlos todos en una sola linea, para de esta manera, poder generar una limpieza y asi quedarnos con el texto que nos servira. Para esto creamos un vector con la libreria qdap, para que de esta manera se puedan contar los ingredientes.
+
+```{r}
+sani2 <- VectorSource(sanwi)
+sani3 <- VCorpus(sani2)
+```
+## Una vez obtenido el corpus de texto, se procede a converitr este corpus en un data frame, y que de esta manera se pueda graficar para ver las frecuencias de los ingredientes. Para esto se hizo el grafico con 20 ingredinetes, ya que bajo nuestro punto de vista es una cantidad razonable.
+
+```{r}
+#
+final <- as.data.frame(sani3)
+(frequent_terms <- freq_terms(final,top = 20))
+plot(frequent_terms)
+```
+## Se puede apreciar que existen ingredientes que tienen una gran cantidad de ocurrencias, sin embargo para poder tener una mejor visualización se procede con filtrar a los 7 ingredientes mas repetidos.
+
+```{r}
+(ingre_final <- freq_terms(final,9))
+```
+## Ahora se puede apreciar mas claramente que ingredientes se repiten con mayor frecuencia en los sandwiches. Estos son queso (32), cebolla (22), mayonesa (19), tomate (18), lechuga (12), tocino (12) y hamburguesa (11). El pan no lo contamos ya que este es algo que todo sanwich lleva, por ende se puede obviar que estara incluido. Luego el tema de la salsa se puede dejar a criterio del cliente, si es que desea incluirla en su orden.
+
+## Finalmente, dejamos estos 7 ingredientes, ya que nos parece una cantidad razonable para un sandwich que no es de una cadena de comida rápida (Mc Donalds, Burger King, etc), si no que esta orientado a algo mas especifico como otras cadenas que uno puede encontrar en su ciudad. Además tomamos como punto para escoger que tuviese una repeticion igual o mayor a 10, de esta manera nos quedamos con los ingredientes escogidos.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
