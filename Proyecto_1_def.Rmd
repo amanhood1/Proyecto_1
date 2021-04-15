@@ -42,7 +42,7 @@ dim(datos)
 
 ```{r}
 sandw <- datos[,! (colnames(datos) %in% c("url","Local","Direccion","texto", "Precio"))]
-datos
+#datos
 
 ```
 
