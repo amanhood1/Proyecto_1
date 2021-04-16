@@ -342,8 +342,9 @@ final <- as.data.frame(sani3)
 plot(frequent_terms)
 ```
 
-![](Proyecto_1_def_files/figure-gfm/unnamed-chunk-8-1.png)<!-- --> \#\#
-Gráfico de distribución de ingredientes:
+![](Proyecto_1_def_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+
+## Gráfico de distribución de ingredientes:
 
 Se puede apreciar que existen ingredientes que tienen una gran cantidad
 de ocurrencias, sin embargo para poder tener una mejor visualización se
